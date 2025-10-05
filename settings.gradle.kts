@@ -33,3 +33,4 @@ plugins {
 }
 
 include(":library")
+include(":samples")
