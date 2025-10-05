@@ -19,6 +19,20 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 
+/**
+ * Modifier used to add blurred background to a [Composable].
+ *
+ * @param blurHolder instance of [BlurHolder] returned from [rememberBlurHolder]
+ * @param color additional color to blurred background
+ * @param shape shape of blurred background
+ *
+ * @return [Modifier]
+ *
+ * @see rememberBlurHolder
+ * @see blurredContent
+ *
+ * @sample BasicDialogSample
+ */
 @Composable
 fun Modifier.blurredBackground(
     blurHolder: BlurHolder,

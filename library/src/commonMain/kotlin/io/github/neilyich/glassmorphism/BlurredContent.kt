@@ -28,6 +28,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 
+/**
+ * Modifier used to mark a [Composable] which content must be blurred where it is overlapped.
+ *
+ * @param blurHolder instance of [BlurHolder] returned from [rememberBlurHolder]
+ * @param blurRadius blur radius
+ *
+ * @return [Modifier]
+ *
+ * @see rememberBlurHolder
+ * @see blurredBackground
+ *
+ * @sample BasicDialogSample
+ */
 @Composable
 fun Modifier.blurredContent(blurHolder: BlurHolder, blurRadius: Dp): Modifier {
     val graphicsLayer = rememberBlurGraphicsLayer(blurRadius)

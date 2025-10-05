@@ -2,20 +2,35 @@ package io.github.neilyich.glassmorphism
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Path
 
+/**
+ * Creates instance of BlurHolder.
+ * This instance must be passed to both [blurredContent] and [blurredBackground].
+ *
+ * @return [BlurHolder]
+ *
+ * @see blurredContent
+ * @see blurredBackground
+ *
+ * @sample BasicDialogSample
+ */
 @Composable
-fun rememberBlurHolder1() = remember { BlurHolder() }
+fun rememberBlurHolder() = remember { BlurHolder() }
 
+/**
+ * Instance of this class is used to connect [blurredContent] and [blurredBackground] with each other.
+ *
+ * @see rememberBlurHolder
+ * @see blurredContent
+ * @see blurredBackground
+ *
+ * @sample BasicDialogSample
+ */
 @Stable
 class BlurHolder {
     private var currentId = 0
