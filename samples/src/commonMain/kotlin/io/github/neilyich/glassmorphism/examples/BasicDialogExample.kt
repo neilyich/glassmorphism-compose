@@ -36,10 +36,7 @@ fun BasicDialogExample(greeting: String) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .blurredContent(
-                    blurHolder = blurHolder,
-                    blurRadius = 36.dp,
-                )
+                .blurredContent(blurHolder)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(36.dp),
         ) {
@@ -69,6 +66,7 @@ fun BasicDialogExample(greeting: String) {
                 .size(200.dp)
                 .blurredBackground(
                     blurHolder = blurHolder,
+                    blurRadius = 36.dp,
                     color = Color.Black.copy(alpha = 0.25f),
                     shape = RoundedCornerShape(16.dp),
                 )
