@@ -1,4 +1,6 @@
 # glassmorphism-compose
+![Maven Central](https://img.shields.io/maven-central/v/io.github.neilyich/glassmorphism-compose)
+
 This library provides glassmorphism effect for Jetpack Compose. It uses `androidx.compose.ui.graphics.BlurEffect` to create blur under the hood.
 
 ## Examples
