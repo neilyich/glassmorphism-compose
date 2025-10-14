@@ -3,9 +3,9 @@ This library provides glassmorphism effect for Jetpack Compose. It uses `android
 
 ## Examples
 <div style="display: flex; gap: 10px;">
-    <img src="screenshots/list_items.png" alt="List Items" width=300>
-    <img src="screenshots/bottom_sheet.png" alt="Bottom Sheet" width=300>
-    <img src="screenshots/top_bar.png" alt="Top Bar" width=300>
+    <img src="screenshots/list_items.png" alt="List Items" width="30%">
+    <img src="screenshots/bottom_sheet.png" alt="Bottom Sheet" width="30%">
+    <img src="screenshots/top_bar.png" alt="Top Bar" width="30%">
 </div>
 
 ## Usage
