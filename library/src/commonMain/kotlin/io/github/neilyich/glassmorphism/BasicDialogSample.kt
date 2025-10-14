@@ -29,10 +29,7 @@ internal fun BasicDialogSample() {
             modifier = Modifier
                 .fillMaxSize()
                 // Use blurredContent to indicate that content of this Composable must be blurred where it is overlapped
-                .blurredContent(
-                    blurHolder = blurHolder,
-                    blurRadius = 24.dp,
-                ),
+                .blurredContent(blurHolder),
         )
 
         ExampleDialog(
@@ -42,6 +39,7 @@ internal fun BasicDialogSample() {
                 // Use blurredBackground for an overlapping Composable to make its background blurred
                 .blurredBackground(
                     blurHolder = blurHolder,
+                    blurRadius = 24.dp,
                     color = Color.Black.copy(alpha = 0.25f),
                     shape = RoundedCornerShape(16.dp),
                 ),

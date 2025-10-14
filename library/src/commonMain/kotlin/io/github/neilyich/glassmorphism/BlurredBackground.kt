@@ -18,6 +18,7 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 
 /**
  * Modifier used to add blurred background to a [Composable].
@@ -36,16 +37,20 @@ import androidx.compose.ui.unit.Constraints
 @Composable
 fun Modifier.blurredBackground(
     blurHolder: BlurHolder,
+    blurRadius: Dp,
     color: Color = Color.Transparent,
     shape: Shape = RectangleShape,
-): Modifier {
+): Modifier = if (blurHolder.isBlurEnabled) {
     val blurBackgroundHolder = blurHolder.rememberBlurBackgroundHolder()
-    return this.background(color, shape) then BlurredBackgroundElement(blurBackgroundHolder, shape)
+    this.background(color, shape) then BlurredBackgroundElement(blurBackgroundHolder, shape, blurRadius)
+} else {
+    this.background(color, shape)
 }
 
 private class BlurredBackgroundModifierNode(
     var blurBackgroundHolder: BlurBackgroundHolder,
     var shape: Shape,
+    var blurRadius: Dp,
 ) : Modifier.Node(), LayoutModifierNode {
     private val path = Path()
 
@@ -60,8 +65,10 @@ private class BlurredBackgroundModifierNode(
                 path.rewind()
                 path.addOutline(shape.createOutline(size, layoutDirection, this@measure))
                 blurBackgroundHolder.blurBackground = BlurBackground(
+                    id = blurBackgroundHolder.id,
                     rectOnScreen = Rect(it.positionOnScreen(), size),
                     path = path,
+                    blurRadius = blurRadius,
                 )
             }
             p.place(0, 0)
@@ -72,12 +79,14 @@ private class BlurredBackgroundModifierNode(
 private data class BlurredBackgroundElement(
     val blurBackgroundHolder: BlurBackgroundHolder,
     val shape: Shape,
+    val blurRadius: Dp,
 ) : ModifierNodeElement<BlurredBackgroundModifierNode>() {
-    override fun create() = BlurredBackgroundModifierNode(blurBackgroundHolder, shape)
+    override fun create() = BlurredBackgroundModifierNode(blurBackgroundHolder, shape, blurRadius)
 
     override fun update(node: BlurredBackgroundModifierNode) {
         node.blurBackgroundHolder = blurBackgroundHolder
         node.shape = shape
+        node.blurRadius = blurRadius
     }
 
     override fun InspectorInfo.inspectableProperties() {}

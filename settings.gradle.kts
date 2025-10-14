@@ -34,3 +34,4 @@ plugins {
 
 include(":library")
 include(":samples")
+include(":benchmark")

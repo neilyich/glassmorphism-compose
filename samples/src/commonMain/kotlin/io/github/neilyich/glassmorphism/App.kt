@@ -1,47 +1,44 @@
 package io.github.neilyich.glassmorphism
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import io.github.neilyich.glassmorphism.samples.BottomSheetSample
+import io.github.neilyich.glassmorphism.samples.DialogSample
+import io.github.neilyich.glassmorphism.samples.ListItemsSample
+import io.github.neilyich.glassmorphism.samples.SamplesList
+import io.github.neilyich.glassmorphism.samples.SamplesListDestination
+import io.github.neilyich.glassmorphism.samples.TopBarSample
+import io.github.neilyich.glassmorphism.samples.ui.SamplesTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import glassmorphismcompose.samples.generated.resources.Res
-import glassmorphismcompose.samples.generated.resources.compose_multiplatform
-import io.github.neilyich.glassmorphism.examples.BasicDialogExample
 
 @Composable
 @Preview
-fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+fun App(isBlurEnabled: Boolean = true) {
+    SamplesTheme {
+        val navController = rememberNavController()
+        val samples = remember {
+            listOf(
+                DialogSample,
+                TopBarSample,
+                BottomSheetSample,
+                ListItemsSample,
+            ).sortedBy { it.name }
+        }
+        NavHost(
+            modifier = Modifier.testTagsAsResourceId(),
+            navController = navController,
+            startDestination = SamplesListDestination,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+            composable<SamplesListDestination> {
+                SamplesList(navController, samples)
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                BasicDialogExample(greeting)
-//                Column(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                ) {
-//                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-//                    Text("Compose: $greeting")
-//                }
+            samples.forEach { sample ->
+                composable(route = sample::class) {
+                    sample.Content(navController, isBlurEnabled)
+                }
             }
         }
     }
