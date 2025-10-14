@@ -40,9 +40,11 @@ fun Modifier.blurredBackground(
     blurRadius: Dp,
     color: Color = Color.Transparent,
     shape: Shape = RectangleShape,
-): Modifier {
+): Modifier = if (blurHolder.isBlurEnabled) {
     val blurBackgroundHolder = blurHolder.rememberBlurBackgroundHolder()
-    return this.background(color, shape) then BlurredBackgroundElement(blurBackgroundHolder, shape, blurRadius)
+    this.background(color, shape) then BlurredBackgroundElement(blurBackgroundHolder, shape, blurRadius)
+} else {
+    this.background(color, shape)
 }
 
 private class BlurredBackgroundModifierNode(

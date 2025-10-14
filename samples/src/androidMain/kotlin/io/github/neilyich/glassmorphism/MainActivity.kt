@@ -11,9 +11,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
+        val isBlurEnabled = intent.getBooleanExtra("isBlurEnabled", true)
         setContent {
-            App()
+            App(isBlurEnabled)
         }
     }
 }

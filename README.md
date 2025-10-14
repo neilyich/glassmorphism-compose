@@ -1,6 +1,11 @@
 # glassmorphism-compose
 This library provides glassmorphism effect for Jetpack Compose. It uses `androidx.compose.ui.graphics.BlurEffect` to create blur under the hood.
 
+## Examples
+![List Items](screenshots/list_items.png)
+![Bottom Sheet](screenshots/bottom_sheet.png)
+![Top Bar](screenshots/top_bar.png)
+
 ## Usage
 ```kotlin
 Box(Modifier.fillMaxSize()) {
@@ -30,7 +35,7 @@ Box(Modifier.fillMaxSize()) {
 }
 ```
 
-You can find more examples of usage [here](samples/src/commonMain/kotlin/io/github/neilyich/glassmorphism/examples).
+You can find more examples of usage [here](samples/src/commonMain/kotlin/io/github/neilyich/glassmorphism/samples).
 
 ## Download
 

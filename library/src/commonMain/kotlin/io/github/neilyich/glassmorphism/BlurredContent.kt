@@ -44,8 +44,10 @@ import androidx.compose.ui.unit.toSize
  * @sample BasicDialogSample
  */
 @Composable
-fun Modifier.blurredContent(blurHolder: BlurHolder): Modifier {
-    return this then BlurredContentElement(blurHolder)
+fun Modifier.blurredContent(blurHolder: BlurHolder): Modifier = if (blurHolder.isBlurEnabled) {
+    this then BlurredContentElement(blurHolder)
+} else {
+    this
 }
 
 private class BlurredContentModifierNode(

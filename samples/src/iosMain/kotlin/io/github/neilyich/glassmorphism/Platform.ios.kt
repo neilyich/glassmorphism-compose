@@ -1,5 +1,7 @@
 package io.github.neilyich.glassmorphism
 
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.Modifier
 import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {
@@ -7,3 +9,6 @@ class IOSPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
+
+@Stable
+actual fun Modifier.testTagsAsResourceId(): Modifier = this
