@@ -2,9 +2,11 @@
 This library provides glassmorphism effect for Jetpack Compose. It uses `androidx.compose.ui.graphics.BlurEffect` to create blur under the hood.
 
 ## Examples
-![List Items](screenshots/list_items.png)
-![Bottom Sheet](screenshots/bottom_sheet.png)
-![Top Bar](screenshots/top_bar.png)
+<div style="display: flex; gap: 10px;">
+    <img src="screenshots/list_items.png" alt="List Items" width=300>
+    <img src="screenshots/bottom_sheet.png" alt="Bottom Sheet" width=300>
+    <img src="screenshots/top_bar.png" alt="Top Bar" width=300>
+</div>
 
 ## Usage
 ```kotlin
