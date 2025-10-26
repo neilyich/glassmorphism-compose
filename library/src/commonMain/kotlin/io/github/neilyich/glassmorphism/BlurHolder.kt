@@ -2,7 +2,6 @@ package io.github.neilyich.glassmorphism
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -10,6 +9,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import io.github.neilyich.glassmorphism.utils.BlurredContent
+import io.github.neilyich.glassmorphism.utils.BlurredContentKey
 
 /**
  * Creates instance of BlurHolder.
@@ -25,7 +27,7 @@ import androidx.compose.ui.Modifier
  * @sample BasicDialogSample
  */
 @Composable
-fun rememberBlurHolder(isBlurEnabled: Boolean = true) = remember { BlurHolder(isBlurEnabled) }
+fun rememberBlurHolder(isBlurEnabled: Boolean = true) = remember(isBlurEnabled) { BlurHolder(isBlurEnabled) }
 
 /**
  * Instance of this class is used to connect [blurredContent] and [blurredBackground] with each other.
@@ -40,28 +42,50 @@ fun rememberBlurHolder(isBlurEnabled: Boolean = true) = remember { BlurHolder(is
 class BlurHolder(initialBlurEnabled: Boolean) {
 
     /**
-     * If false - [blurredContent] will have no effect and [blurredBackground] will have the same effect as [Modifier.background]
+     * If false - [blurredContent] and [blurredBackground] will have no effect
      */
     val isBlurEnabled by mutableStateOf(initialBlurEnabled)
 
-    private var nextBackgroundHolderId = 0
-    private val backgroundHolders = mutableStateMapOf<Int, BlurBackgroundHolder>()
+    private var blurredContentId = 0
 
-    internal val blurBackgrounds by derivedStateOf { backgroundHolders.values.mapNotNull { it.blurBackground } }
+    private val blurredContents = mutableStateMapOf<Any, BlurredContent>()
+
+    internal val specifiedBlurredContents by derivedStateOf {
+        blurredContents.values.filter { it.isSpecified }.sortedBy { it.zIndex }
+    }
 
     @Composable
-    internal fun rememberBlurBackgroundHolder(): BlurBackgroundHolder {
-        val blurBackgroundHolder = remember {
-            val id = nextBackgroundHolderId++
-            BlurBackgroundHolder(id).also {
-                backgroundHolders[id] = it
+    internal fun rememberBlurredContent(key: Any?, zIndex: Float?): Any {
+        val blurredContent = remember(key) {
+            val contentKey = key ?: BlurredContentKey(blurredContentId++)
+            val blurredContent = BlurredContent(contentKey, zIndex)
+            blurredContents[contentKey] = blurredContent
+            blurredContent
+        }
+        if (zIndex != blurredContent.zIndex) {
+            withBlurredContent(blurredContent.key) {
+                copy(zIndex = zIndex)
             }
         }
-        DisposableEffect(Unit) {
-            onDispose {
-                backgroundHolders.remove(blurBackgroundHolder.id)
-            }
+        return blurredContent.key
+    }
+
+    internal fun removeBlurredContent(key: Any) = blurredContents.remove(key)
+
+    internal inline fun withBlurredContentLayer(
+        key: Any,
+        contentLayerFactory: () -> GraphicsLayer,
+        block: (GraphicsLayer) -> Unit,
+    ) {
+        val blurredContent = blurredContents[key] ?: return
+        val layer = blurredContent.contentLayer ?: contentLayerFactory().also {
+            blurredContents[key] = blurredContent.copy(contentLayer = it)
         }
-        return blurBackgroundHolder
+        block(layer)
+    }
+
+    internal inline fun withBlurredContent(key: Any, block: BlurredContent.() -> BlurredContent) {
+        val blurredContent = blurredContents[key] ?: return
+        blurredContents[key] = blurredContent.block()
     }
 }

@@ -27,12 +27,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import glassmorphismcompose.samples.generated.resources.Res
-import glassmorphismcompose.samples.generated.resources.space
-import glassmorphismcompose.samples.generated.resources.tree
 import io.github.neilyich.glassmorphism.blurredBackground
 import io.github.neilyich.glassmorphism.blurredContent
 import io.github.neilyich.glassmorphism.rememberBlurHolder
+import io.github.neilyich.glassmorphism.resources.Res
+import io.github.neilyich.glassmorphism.resources.space
+import io.github.neilyich.glassmorphism.resources.tree
 import io.github.neilyich.glassmorphism.samples.ui.BackIcon
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
@@ -63,6 +63,7 @@ data object BottomSheetSample : Sample {
                         .blurredBackground(
                             blurHolder = blurHolder,
                             blurRadius = 50.dp,
+                            tintColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.15f),
                             shape = BottomSheetDefaults.ExpandedShape,
                         )
                         .padding(16.dp),
@@ -72,9 +73,10 @@ data object BottomSheetSample : Sample {
                 }
             },
             sheetDragHandle = null,
-            sheetContainerColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.15f),
+            sheetContainerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.25f),
             sheetShadowElevation = 0.dp,
             sheetPeekHeight = 300.dp,
+            containerColor = MaterialTheme.colorScheme.background,
         ) { contentPadding ->
             val listItems = remember {
                 listOf(
@@ -93,6 +95,8 @@ data object BottomSheetSample : Sample {
                 items(20) {
                     val (image, text) = listItems[it % listItems.size]
                     ListItem(
+                        // Alternative to blurredContent in LazyColumn
+                        // modifier = Modifier.blurredContent(blurHolder),
                         leadingContent = {
                             Image(
                                 modifier = Modifier

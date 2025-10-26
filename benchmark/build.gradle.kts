@@ -12,7 +12,7 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.neilyich.glassmorphism.benchmark2"
+    namespace = "io.github.neilyich.glassmorphism.benchmark"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -20,7 +20,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "LOW-BATTERY"
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "LOW-BATTERY,EMULATOR"
     }
 
     buildTypes {

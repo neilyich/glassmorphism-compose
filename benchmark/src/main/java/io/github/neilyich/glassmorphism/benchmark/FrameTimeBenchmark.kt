@@ -21,13 +21,14 @@ class FrameTimeBenchmark {
     val benchmarkRule = MacrobenchmarkRule()
 
     private val targetPackage = "io.github.neilyich.glassmorphism"
-    private val iterations = 1
+    private val iterations = 4
+    private val scrollIterations = 4
 
     @Test
     fun dialogBlur() = runTest("Dialog", true)
 
     @Test
-    fun dialogNoBlur() = runTest("Dialog", true)
+    fun dialogNoBlur() = runTest("Dialog", false)
 
     @Test
     fun topBarBlur() = runTest("Top Bar", true)
@@ -71,8 +72,10 @@ class FrameTimeBenchmark {
             },
         ) {
             val list = device.findObject(By.res("lazy_column"))
-            list.fling(Direction.DOWN, 20_000)
-            list.fling(Direction.UP, 20_000)
+            repeat(scrollIterations) {
+                list.fling(Direction.DOWN, 20_000)
+                list.fling(Direction.UP, 20_000)
+            }
         }
     }
 }

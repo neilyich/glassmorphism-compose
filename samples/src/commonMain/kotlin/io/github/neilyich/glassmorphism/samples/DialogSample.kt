@@ -85,7 +85,7 @@ object DialogSample : Sample {
                         .blurredBackground(
                             blurHolder = blurHolder,
                             blurRadius = 36.dp,
-                            color = MaterialTheme.colorScheme.background.copy(alpha = 0.25f),
+                            backgroundColor = MaterialTheme.colorScheme.background,
                             shape = RoundedCornerShape(16.dp),
                         )
                         .border(

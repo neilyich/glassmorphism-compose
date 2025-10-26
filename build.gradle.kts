@@ -12,4 +12,5 @@ plugins {
     alias(libs.plugins.vanniktechMavenPublish) apply false
     alias(libs.plugins.androidTest) apply false
     alias(libs.plugins.kotlinAndroid) apply false
+    alias(libs.plugins.roborazzi) apply false
 }

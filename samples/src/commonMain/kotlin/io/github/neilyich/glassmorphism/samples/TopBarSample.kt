@@ -18,16 +18,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import glassmorphismcompose.samples.generated.resources.Res
-import glassmorphismcompose.samples.generated.resources.space
-import glassmorphismcompose.samples.generated.resources.tree
 import io.github.neilyich.glassmorphism.blurredBackground
 import io.github.neilyich.glassmorphism.blurredContent
 import io.github.neilyich.glassmorphism.rememberBlurHolder
+import io.github.neilyich.glassmorphism.resources.Res
+import io.github.neilyich.glassmorphism.resources.space
+import io.github.neilyich.glassmorphism.resources.tree
 import io.github.neilyich.glassmorphism.samples.ui.BackIcon
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
@@ -47,8 +48,10 @@ data object TopBarSample : Sample {
                     modifier = Modifier
                         .blurredBackground(
                             blurHolder = blurHolder,
-                            blurRadius = 50.dp,
-                            color = MaterialTheme.colorScheme.background.copy(alpha = 0.35f)
+                            blurRadius = 16.dp,
+                            tintColor = MaterialTheme.colorScheme.background.copy(alpha = 0.35f),
+                            backgroundColor = MaterialTheme.colorScheme.background,
+                            tileMode = TileMode.Decal,
                         ),
                     title = { Text("$name Sample") },
                     navigationIcon = { BackIcon(navController) },

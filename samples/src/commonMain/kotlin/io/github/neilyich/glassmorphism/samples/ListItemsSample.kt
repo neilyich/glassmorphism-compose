@@ -22,11 +22,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import glassmorphismcompose.samples.generated.resources.Res
-import glassmorphismcompose.samples.generated.resources.tree
 import io.github.neilyich.glassmorphism.blurredBackground
 import io.github.neilyich.glassmorphism.blurredContent
 import io.github.neilyich.glassmorphism.rememberBlurHolder
+import io.github.neilyich.glassmorphism.resources.Res
+import io.github.neilyich.glassmorphism.resources.tree
 import io.github.neilyich.glassmorphism.samples.ui.BackIcon
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
@@ -73,9 +73,9 @@ data object ListItemsSample : Sample {
                                 .padding(horizontal = 16.dp)
                                 .blurredBackground(
                                     blurHolder = blurHolder,
-                                    blurRadius = 50.dp,
-                                    color = Color.White.copy(alpha = 0.25f),
+                                    blurRadius = 16.dp,
                                     shape = MaterialTheme.shapes.large,
+                                    tintColor = Color.White.copy(alpha = 0.25f),
                                 ),
                             headlineContent = { Text("Item $index") },
                             colors = ListItemDefaults.colors(

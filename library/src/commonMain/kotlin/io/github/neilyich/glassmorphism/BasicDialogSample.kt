@@ -40,8 +40,8 @@ internal fun BasicDialogSample() {
                 .blurredBackground(
                     blurHolder = blurHolder,
                     blurRadius = 24.dp,
-                    color = Color.Black.copy(alpha = 0.25f),
                     shape = RoundedCornerShape(16.dp),
+                    tintColor = Color.Black.copy(alpha = 0.25f),
                 ),
         )
     }
