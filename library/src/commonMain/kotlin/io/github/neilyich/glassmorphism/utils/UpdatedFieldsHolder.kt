@@ -13,13 +13,16 @@ internal data object Fields {
     const val LayoutDirection = 1 shl 6
     const val BackgroundColor = 1 shl 7
     const val BlurredContents = 1 shl 8
+    const val TileMode = 1 shl 9
 
     const val OutlineAffectingFields = Size or Shape or Density or LayoutDirection
     const val BlurredContentAffectingFields = OutlineAffectingFields or
             PositionOnScreen or
             BlurRadius or
             BlurredContents
-    const val OnlyDrawAffectingFields = TintColor or BackgroundColor
+    const val GraphicsLayerAffectingFields = BlurRadius or TileMode
+    const val OnlyDrawAffectingFields = TintColor or BackgroundColor or GraphicsLayerAffectingFields
+    const val All = 0.inv()
 }
 
 @JvmInline
@@ -39,5 +42,6 @@ internal value class UpdatedFieldsHolder(val value: Int = 0) {
         if (contains(Fields.LayoutDirection)) append("LayoutDirection,")
         if (contains(Fields.BackgroundColor)) append("BackgroundColor,")
         if (contains(Fields.BlurredContents)) append("BlurredContents,")
+        if (contains(Fields.TileMode)) append("TileMode,")
     }
 }

@@ -59,6 +59,7 @@ class FrameTimeBenchmark {
             setupBlock = {
                 startActivityAndWait { intent ->
                     intent.putExtra("isBlurEnabled", isBlurEnabled)
+                    intent.putExtra("isSettingsEnabled", false)
                 }
                 with(device) {
                     val sampleList = wait(Until.findObject(By.res("sample_list")), 5.seconds.inWholeMilliseconds)

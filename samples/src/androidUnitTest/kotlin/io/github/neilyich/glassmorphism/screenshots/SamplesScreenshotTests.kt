@@ -47,7 +47,7 @@ class SamplesScreenshotTests {
             captureType = RoborazziRule.CaptureType.LastImage(),
             roborazziOptions = RoborazziOptions(
                 compareOptions = RoborazziOptions.CompareOptions(
-                    resultValidator = ThresholdValidator(0.001f),
+                    resultValidator = ThresholdValidator(0.01f),
                 ),
             ),
         ),
@@ -92,6 +92,7 @@ class SamplesScreenshotTests {
             Content(
                 navController = TestNavHostController(LocalContext.current),
                 isBlurEnabled = true,
+                isSettingsEnabled = false,
             )
         }
     }

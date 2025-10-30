@@ -25,6 +25,7 @@ vanniktechMavenPublish = "0.34.0"
 uiautomator = "2.2.0"
 roborazzi = "1.50.0"
 robolectric = "4.16"
+colorpicker = "1.1.2"
 
 [libraries]
 androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
@@ -49,6 +50,7 @@ androidx-navigation-testing-android = { group = "androidx.navigation", name = "n
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+compose-colorpicker = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpicker" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

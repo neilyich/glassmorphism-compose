@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -32,25 +33,43 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
 @Serializable
-data object ListItemsSample : Sample {
+data object ListItemsSample : Sample() {
     override val name = "List Items"
+
+    @Composable
+    override fun rememberDefaultBlurSettings(isBlurEnabled: Boolean): BlurSettings {
+        val shapes = MaterialTheme.shapes
+        return remember(isBlurEnabled) {
+            BlurSettings(
+                isBlurEnabled = isBlurEnabled,
+                blurRadius = 16.dp,
+                shape = shapes.large,
+                tintColor = Color.White.copy(alpha = 0.25f),
+            )
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun Content(navController: NavHostController, isBlurEnabled: Boolean) {
+    override fun Content(
+        navController: NavHostController,
+        blurSettings: BlurSettings,
+        isSettingsIconVisible: Boolean
+    ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
                     title = { Text("$name Sample") },
                     navigationIcon = { BackIcon(navController) },
+                    actions = { BlurSettingsIcon(isSettingsIconVisible) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                     ),
                 )
             },
         ) { contentPadding ->
-            val blurHolder = rememberBlurHolder(isBlurEnabled)
+            val blurHolder = rememberBlurHolder(blurSettings.isBlurEnabled)
             Box(Modifier.fillMaxSize()) {
                 Image(
                     modifier = Modifier
@@ -73,9 +92,10 @@ data object ListItemsSample : Sample {
                                 .padding(horizontal = 16.dp)
                                 .blurredBackground(
                                     blurHolder = blurHolder,
-                                    blurRadius = 16.dp,
-                                    shape = MaterialTheme.shapes.large,
-                                    tintColor = Color.White.copy(alpha = 0.25f),
+                                    blurRadius = blurSettings.blurRadius,
+                                    shape = blurSettings.shape,
+                                    tintColor = blurSettings.tintColor,
+                                    backgroundColor = blurSettings.backgroundColor,
                                 ),
                             headlineContent = { Text("Item $index") },
                             colors = ListItemDefaults.colors(

@@ -2,6 +2,7 @@ package io.github.neilyich.glassmorphism
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -42,9 +43,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toSize
+import io.github.neilyich.glassmorphism.utils.BlurredContent
 import io.github.neilyich.glassmorphism.utils.Fields
 import io.github.neilyich.glassmorphism.utils.UpdatedFieldsHolder
 
@@ -57,6 +60,8 @@ import io.github.neilyich.glassmorphism.utils.UpdatedFieldsHolder
  * @param tintColor additional color to blurred background
  * @param backgroundColor color drawn behind blurred background
  * @param tileMode tileMode used in BlurEffect
+ * @param block block to update parameters if they are updated frequently (e.g. in animations) for better performance.
+ * Also it is valid to pass all parameters in this block not specifying them in braces
  *
  * @return [Modifier]
  *
@@ -65,26 +70,32 @@ import io.github.neilyich.glassmorphism.utils.UpdatedFieldsHolder
  *
  * @sample BasicDialogSample
  */
+@Stable
 fun Modifier.blurredBackground(
     blurHolder: BlurHolder,
-    blurRadius: Dp,
+    blurRadius: Dp = 0.dp,
     shape: Shape = RectangleShape,
     tintColor: Color = Color.Unspecified,
     backgroundColor: Color = Color.Unspecified,
     tileMode: TileMode = TileMode.Clamp,
+    block: (BlurredBackgroundScope.() -> Unit)? = null,
 ) = if (blurHolder.isBlurEnabled) {
-    this then BlurredBackgroundElement(blurHolder, blurRadius, shape, tintColor, backgroundColor, tileMode)
+    val scope = BlurredBackgroundScopeImpl(
+        initialBlurRadius = blurRadius,
+        initialShape = shape,
+        initialTintColor = tintColor,
+        initialBackgroundColor = backgroundColor,
+        initialTileMode = tileMode,
+    )
+    this then BlurredBackgroundElement(blurHolder, scope, block)
 } else {
     this
 }
 
 private class BlurredBackgroundModifierNode(
     var blurHolder: BlurHolder,
-    var blurRadius: Dp,
-    var shape: Shape,
-    var tintColor: Color,
-    var backgroundColor: Color,
-    var tileMode: TileMode,
+    var scope: BlurredBackgroundScopeImpl,
+    var block: (BlurredBackgroundScope.() -> Unit)?,
 ) : Modifier.Node(),
     DrawModifierNode,
     ObserverModifierNode,
@@ -99,41 +110,42 @@ private class BlurredBackgroundModifierNode(
     private var updatedFields = UpdatedFieldsHolder()
 
     private var positionOnScreen = Offset.Unspecified
-    set(value) {
-        if (field != value) {
-            updatedFields += Fields.PositionOnScreen
-            field = value
+        set(value) {
+            if (field != value) {
+                updatedFields += Fields.PositionOnScreen
+                field = value
+            }
         }
-    }
 
     private var size = IntSize.Zero
-    set(value) {
-        if (field != value) {
-            updatedFields += Fields.Size
-            field = value
+        set(value) {
+            if (field != value) {
+                updatedFields += Fields.Size
+                field = value
+            }
         }
-    }
 
     private var outline: Outline? = null
 
     private var boundsOutline = Path()
 
     private var displayedContent = DisplayedContent(emptyList(), Rect.Zero)
+    private var blurredContents = listOf<BlurredContent>()
     private var isDrawn = false
 
     override fun onAttach() {
-        observeReads { blurHolder.specifiedBlurredContents }
-        graphicsLayer = currentValueOf(LocalGraphicsContext).createGraphicsLayer().apply {
-            val blurRadiusPx = with(currentValueOf(LocalDensity)) { blurRadius.toPx() }
-            if (blurRadiusPx > 0f) {
-                renderEffect = BlurEffect(blurRadiusPx, blurRadiusPx, tileMode)
-            }
-            clip = true
-        }
+        graphicsLayer = currentValueOf(LocalGraphicsContext).createGraphicsLayer()
+        updatedFields = UpdatedFieldsHolder(Fields.All)
+        observeReads { handleUpdatedFields() }
+    }
+
+    fun processUpdate() {
+        displayedContent = DisplayedContent(emptyList(), Rect.Zero)
+        updatedFields = UpdatedFieldsHolder(Fields.All)
+        handleUpdatedFields()
     }
 
     override fun onObservedReadsChanged() {
-        updatedFields += Fields.BlurredContents
         handleUpdatedFields()
     }
 
@@ -155,11 +167,12 @@ private class BlurredBackgroundModifierNode(
         drawTint()
         drawContent()
         isDrawn = true
+        scope.updatedFields = UpdatedFieldsHolder()
+        updatedFields = UpdatedFieldsHolder()
     }
 
 
     private fun ContentDrawScope.recordDisplayedContent(layer: GraphicsLayer): Boolean {
-        updatedFields -= Fields.BlurredContentAffectingFields
         if (displayedContent.isEmpty) {
             if (isDrawn) return false
             updatedFields = UpdatedFieldsHolder(Fields.BlurredContents)
@@ -174,8 +187,8 @@ private class BlurredBackgroundModifierNode(
             for (content in displayedContent.blurredContents) {
                 val offset = -displayedContent.bounds.topLeft + content.relativeRect.topLeft
                 inset(
-                    left = offset.x,
-                    top = offset.y,
+                    left = offset.x.coerceAtMost(size.width),
+                    top = offset.y.coerceAtMost(size.height),
                     right = 0f,
                     bottom = 0f,
                 ) {
@@ -192,17 +205,15 @@ private class BlurredBackgroundModifierNode(
     }
 
     private fun ContentDrawScope.drawBackground() = outline?.let {
-        if (backgroundColor.isSpecified) {
-            drawOutline(it, backgroundColor)
+        if (scope.backgroundColor.isSpecified) {
+            drawOutline(it, scope.backgroundColor)
         }
-        updatedFields -= Fields.BackgroundColor
     }
 
     private fun ContentDrawScope.drawTint() = outline?.let {
-        if (tintColor.isSpecified) {
-            drawOutline(it, tintColor)
+        if (scope.tintColor.isSpecified) {
+            drawOutline(it, scope.tintColor)
         }
-        updatedFields -= Fields.TintColor
     }
 
     override fun onDensityChange() {
@@ -228,14 +239,40 @@ private class BlurredBackgroundModifierNode(
     }
 
     private fun handleUpdatedFields() {
+        block?.invoke(scope)
+        updatedFields += scope.updatedFields.value
+        scope.updatedFields = UpdatedFieldsHolder()
+        if (blurHolder.specifiedBlurredContents != blurredContents) {
+            updatedFields += Fields.BlurredContents
+            blurredContents = blurHolder.specifiedBlurredContents
+        }
+        if (updatedFields.any(Fields.GraphicsLayerAffectingFields)) {
+            updateGraphicsLayer()
+            updatedFields -= Fields.GraphicsLayerAffectingFields
+        }
         if (updatedFields.any(Fields.OutlineAffectingFields)) {
             updateOutline()
+            updatedFields -= Fields.OutlineAffectingFields
         }
         if (updatedFields.any(Fields.BlurredContentAffectingFields)) {
+            updatedFields -= Fields.BlurredContentAffectingFields
             if (recalculateDisplayedContent(updatedFields)) return
         }
         if (updatedFields.any(Fields.OnlyDrawAffectingFields)) {
+            updatedFields -= Fields.OnlyDrawAffectingFields
             if (isDrawn) invalidateDraw()
+        }
+    }
+
+    private fun updateGraphicsLayer() {
+        graphicsLayer?.apply {
+            val blurRadiusPx = with(currentValueOf(LocalDensity)) { scope.blurRadius.toPx() }
+            renderEffect = if (blurRadiusPx > 0f) {
+                BlurEffect(blurRadiusPx, blurRadiusPx, scope.tileMode)
+            } else {
+                null
+            }
+            clip = true
         }
     }
 
@@ -244,7 +281,7 @@ private class BlurredBackgroundModifierNode(
         layoutDirection: LayoutDirection = requireLayoutDirection(),
         density: Density = requireDensity(),
     ) {
-        outline = shape.createOutline(
+        outline = scope.shape.createOutline(
             size = size,
             layoutDirection = layoutDirection,
             density = density,
@@ -253,7 +290,7 @@ private class BlurredBackgroundModifierNode(
 
     private fun recalculateDisplayedContent(updatedFields: UpdatedFieldsHolder): Boolean {
         if (positionOnScreen.isUnspecified || size == IntSize.Zero) return false
-        val blurRadiusPx = with(currentValueOf(LocalDensity)) { blurRadius.toPx() }
+        val blurRadiusPx = with(currentValueOf(LocalDensity)) { scope.blurRadius.toPx() }
         val rectOnScreen = Rect(positionOnScreen, size.toSize())
         val inflatedRectOnScreen = rectOnScreen.inflate(blurRadiusPx)
         var boundsLeft = Float.MAX_VALUE
@@ -328,21 +365,16 @@ private class BlurredBackgroundModifierNode(
 
 private data class BlurredBackgroundElement(
     val blurHolder: BlurHolder,
-    val blurRadius: Dp,
-    val shape: Shape,
-    val tintColor: Color,
-    val backgroundColor: Color,
-    val tileMode: TileMode,
+    val scope: BlurredBackgroundScopeImpl,
+    val block: (BlurredBackgroundScope.() -> Unit)?,
 ) : ModifierNodeElement<BlurredBackgroundModifierNode>() {
-    override fun create() = BlurredBackgroundModifierNode(blurHolder, blurRadius, shape, tintColor, backgroundColor, tileMode)
+    override fun create() = BlurredBackgroundModifierNode(blurHolder, scope, block)
 
     override fun update(node: BlurredBackgroundModifierNode) {
         node.blurHolder = blurHolder
-        node.shape = shape
-        node.blurRadius = blurRadius
-        node.tintColor = tintColor
-        node.backgroundColor = backgroundColor
-        node.tileMode = tileMode
+        node.scope = scope
+        node.block = block
+        node.processUpdate()
     }
 
     override fun InspectorInfo.inspectableProperties() {}

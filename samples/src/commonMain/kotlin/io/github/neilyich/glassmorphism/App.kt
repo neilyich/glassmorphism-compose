@@ -16,7 +16,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun App(isBlurEnabled: Boolean = true) {
+fun App(isBlurEnabled: Boolean = true, isSettingsEnabled: Boolean = true) {
     SamplesTheme {
         val navController = rememberNavController()
         val samples = remember {
@@ -37,7 +37,7 @@ fun App(isBlurEnabled: Boolean = true) {
             }
             samples.forEach { sample ->
                 composable(route = sample::class) {
-                    sample.Content(navController, isBlurEnabled)
+                    sample.Content(navController, isBlurEnabled, isSettingsEnabled)
                 }
             }
         }

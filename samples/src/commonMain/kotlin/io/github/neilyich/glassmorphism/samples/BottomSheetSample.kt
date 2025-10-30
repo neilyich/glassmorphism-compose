@@ -38,14 +38,33 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
 @Serializable
-data object BottomSheetSample : Sample {
+data object BottomSheetSample : Sample() {
     override val name = "Bottom Sheet"
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun Content(navController: NavHostController, isBlurEnabled: Boolean) {
+    override fun rememberDefaultBlurSettings(isBlurEnabled: Boolean): BlurSettings {
+        val colorScheme = MaterialTheme.colorScheme
+        val shape = BottomSheetDefaults.ExpandedShape
+        return remember(isBlurEnabled) {
+            BlurSettings(
+                isBlurEnabled = isBlurEnabled,
+                blurRadius = 30.dp,
+                tintColor = colorScheme.onBackground.copy(alpha = 0.15f),
+                shape = shape,
+            )
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    override fun Content(
+        navController: NavHostController,
+        blurSettings: BlurSettings,
+        isSettingsIconVisible: Boolean
+    ) {
         val scaffoldState = rememberBottomSheetScaffoldState(rememberStandardBottomSheetState())
-        val blurHolder = rememberBlurHolder(isBlurEnabled)
+        val blurHolder = rememberBlurHolder(blurSettings.isBlurEnabled)
         BottomSheetScaffold(
             modifier = Modifier.fillMaxSize(),
             scaffoldState = scaffoldState,
@@ -53,6 +72,7 @@ data object BottomSheetSample : Sample {
                 TopAppBar(
                     title = { Text("$name Sample") },
                     navigationIcon = { BackIcon(navController) },
+                    actions = { BlurSettingsIcon(isSettingsIconVisible) },
                 )
             },
             sheetContent = {
@@ -62,10 +82,12 @@ data object BottomSheetSample : Sample {
                         .fillMaxWidth()
                         .blurredBackground(
                             blurHolder = blurHolder,
-                            blurRadius = 50.dp,
-                            tintColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.15f),
-                            shape = BottomSheetDefaults.ExpandedShape,
-                        )
+                            tintColor = blurSettings.tintColor,
+                            shape = blurSettings.shape,
+                            tileMode = blurSettings.tileMode
+                        ) {
+                            blurRadius = blurSettings.blurRadius
+                        }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -82,21 +104,22 @@ data object BottomSheetSample : Sample {
                 listOf(
                     Res.drawable.tree to "In botany, a tree is a perennial plant with an elongated stem, or trunk, usually supporting branches and leaves.",
                     Res.drawable.space to "The Milky Way or Milky Way Galaxy is the galaxy that includes the Solar System",
-
-                    )
+                )
             }
             LazyColumn(
                 modifier = Modifier
                     .testTag("lazy_column")
-                    .blurredContent(blurHolder)
+                    // Alternative to blurredContent in ListItem
+                    //.blurredContent(blurHolder)
                     .fillMaxSize(),
                 contentPadding = contentPadding,
+                overscrollEffect = null,
             ) {
                 items(20) {
                     val (image, text) = listItems[it % listItems.size]
                     ListItem(
                         // Alternative to blurredContent in LazyColumn
-                        // modifier = Modifier.blurredContent(blurHolder),
+                        modifier = Modifier.blurredContent(blurHolder),
                         leadingContent = {
                             Image(
                                 modifier = Modifier
