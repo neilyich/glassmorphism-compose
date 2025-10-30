@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.neilyich"
-version = "0.1.0"
+version = "1.0.0"
 
 kotlin {
     jvm()
@@ -34,6 +34,18 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
+
+    macosX64()
+    macosArm64()
+
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
+    js(IR) {
+        browser()
+    }
 
     sourceSets {
         commonMain.dependencies {

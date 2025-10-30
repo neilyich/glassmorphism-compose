@@ -33,18 +33,36 @@ import io.github.neilyich.glassmorphism.samples.ui.BackIcon
 import kotlinx.serialization.Serializable
 
 @Serializable
-object DialogSample : Sample {
+object DialogSample : Sample() {
     override val name: String = "Dialog"
+
+    @Composable
+    override fun rememberDefaultBlurSettings(isBlurEnabled: Boolean): BlurSettings {
+        val colorScheme = MaterialTheme.colorScheme
+        return remember(isBlurEnabled) {
+            BlurSettings(
+                isBlurEnabled = isBlurEnabled,
+                blurRadius = 36.dp,
+                backgroundColor = colorScheme.background,
+                shape = RoundedCornerShape(16.dp),
+            )
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun Content(navController: NavHostController, isBlurEnabled: Boolean) {
+    override fun Content(
+        navController: NavHostController,
+        blurSettings: BlurSettings,
+        isSettingsIconVisible: Boolean
+    ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
                     title = { Text("$name Sample") },
                     navigationIcon = { BackIcon(navController) },
+                    actions = { BlurSettingsIcon(isSettingsIconVisible) },
                 )
             },
         ) {
@@ -59,7 +77,7 @@ object DialogSample : Sample {
                 )
             }
             Box(Modifier.fillMaxSize()) {
-                val blurHolder = rememberBlurHolder(isBlurEnabled)
+                val blurHolder = rememberBlurHolder(blurSettings.isBlurEnabled)
                 LazyColumn(
                     modifier = Modifier
                         .testTag("lazy_column")
@@ -84,14 +102,15 @@ object DialogSample : Sample {
                         .size(200.dp)
                         .blurredBackground(
                             blurHolder = blurHolder,
-                            blurRadius = 36.dp,
-                            color = MaterialTheme.colorScheme.background.copy(alpha = 0.25f),
-                            shape = RoundedCornerShape(16.dp),
+                            blurRadius = blurSettings.blurRadius,
+                            tintColor = blurSettings.tintColor,
+                            backgroundColor = blurSettings.backgroundColor,
+                            shape = blurSettings.shape,
                         )
                         .border(
                             width = Dp.Hairline,
                             color = Color.Gray,
-                            shape = RoundedCornerShape(16.dp),
+                            shape = blurSettings.shape,
                         )
                         .padding(12.dp),
                     text = name,

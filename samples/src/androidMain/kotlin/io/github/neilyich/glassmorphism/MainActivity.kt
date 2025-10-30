@@ -12,8 +12,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val isBlurEnabled = intent.getBooleanExtra("isBlurEnabled", true)
+        val isSettingsEnabled = intent.getBooleanExtra("isSettingsEnabled", true)
         setContent {
-            App(isBlurEnabled)
+            App(isBlurEnabled, isSettingsEnabled)
         }
     }
 }

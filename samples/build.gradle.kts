@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalComposeLibrary::class)
+
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,6 +11,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.roborazzi)
 }
 
 kotlin {
@@ -45,6 +49,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.compose.colorpicker)
             implementation(libs.compose.navigation)
         }
         commonTest.dependencies {
@@ -53,6 +58,16 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+        }
+
+        androidUnitTest.dependencies {
+            implementation(compose.desktop.uiTestJUnit4)
+            implementation(compose.components.resources)
+            implementation(compose.uiTest)
+            implementation(libs.androidx.navigation.testing.android)
+            implementation(libs.robolectric)
+            implementation(libs.roborazzi)
+            implementation(libs.roborazzi.junit.rule)
         }
     }
 }
@@ -76,6 +91,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
@@ -88,10 +104,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
 compose.desktop {
@@ -104,4 +126,12 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "io.github.neilyich.glassmorphism.resources"
+}
+
+roborazzi {
+    outputDir.set(file("src/androidUnitTest/screenshots"))
 }
