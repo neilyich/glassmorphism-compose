@@ -32,7 +32,7 @@ Box(Modifier.fillMaxSize()) {
             .blurredBackground(
                 blurHolder = blurHolder,
                 blurRadius = 24.dp,
-                color = Color.Black.copy(alpha = 0.25f),
+                tintColor = Color.Black.copy(alpha = 0.25f),
                 shape = RoundedCornerShape(16.dp),
             ),
     )
