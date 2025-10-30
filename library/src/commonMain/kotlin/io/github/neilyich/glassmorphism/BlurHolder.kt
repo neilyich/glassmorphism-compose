@@ -1,6 +1,5 @@
 package io.github.neilyich.glassmorphism
 
-import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -8,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import io.github.neilyich.glassmorphism.utils.BlurredContent
 import io.github.neilyich.glassmorphism.utils.BlurredContentKey
@@ -17,7 +15,8 @@ import io.github.neilyich.glassmorphism.utils.BlurredContentKey
  * Creates instance of BlurHolder.
  * This instance must be passed to both [blurredContent] and [blurredBackground].
  *
- * @param isBlurEnabled if false - [blurredContent] will have no effect and [blurredBackground] will have the same effect as [Modifier.background]
+ * @param isBlurEnabled if false - [blurredContent] will have no effect and [blurredBackground] will give no blur ignoring value of `blurRadius`.
+ * By default it is `true` if blur is available for the device
  *
  * @return [BlurHolder]
  *
@@ -27,7 +26,13 @@ import io.github.neilyich.glassmorphism.utils.BlurredContentKey
  * @sample BasicDialogSample
  */
 @Composable
-fun rememberBlurHolder(isBlurEnabled: Boolean = true) = remember(isBlurEnabled) { BlurHolder(isBlurEnabled) }
+fun rememberBlurHolder(isBlurEnabled: Boolean = checkIfBlurAvailable()) = remember(isBlurEnabled) { BlurHolder(isBlurEnabled) }
+
+/**
+ * Checks if blur is available for the device
+ * (returns `false` only for Android 11 and lower because blur is not supported there)
+ */
+expect fun checkIfBlurAvailable(): Boolean
 
 /**
  * Instance of this class is used to connect [blurredContent] and [blurredBackground] with each other.
@@ -42,7 +47,7 @@ fun rememberBlurHolder(isBlurEnabled: Boolean = true) = remember(isBlurEnabled) 
 class BlurHolder(initialBlurEnabled: Boolean) {
 
     /**
-     * If false - [blurredContent] and [blurredBackground] will have no effect
+     * If false - [blurredContent] will have no effect and [blurredBackground] will give no blur ignoring value of `blurRadius`
      */
     val isBlurEnabled by mutableStateOf(initialBlurEnabled)
 

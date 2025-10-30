@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toSize
@@ -79,17 +80,15 @@ fun Modifier.blurredBackground(
     backgroundColor: Color = Color.Unspecified,
     tileMode: TileMode = TileMode.Clamp,
     block: (BlurredBackgroundScope.() -> Unit)? = null,
-) = if (blurHolder.isBlurEnabled) {
+): Modifier {
     val scope = BlurredBackgroundScopeImpl(
-        initialBlurRadius = blurRadius,
+        initialBlurRadius = if (blurHolder.isBlurEnabled) blurRadius else Dp.Unspecified,
         initialShape = shape,
         initialTintColor = tintColor,
         initialBackgroundColor = backgroundColor,
         initialTileMode = tileMode,
     )
-    this then BlurredBackgroundElement(blurHolder, scope, block)
-} else {
-    this
+    return this then BlurredBackgroundElement(blurHolder, scope, block)
 }
 
 private class BlurredBackgroundModifierNode(
@@ -264,16 +263,14 @@ private class BlurredBackgroundModifierNode(
         }
     }
 
-    private fun updateGraphicsLayer() {
-        graphicsLayer?.apply {
+    private fun updateGraphicsLayer() = graphicsLayer?.apply {
+        renderEffect = if (scope.blurRadius.isSpecified && scope.blurRadius.value > 0f) {
             val blurRadiusPx = with(currentValueOf(LocalDensity)) { scope.blurRadius.toPx() }
-            renderEffect = if (blurRadiusPx > 0f) {
-                BlurEffect(blurRadiusPx, blurRadiusPx, scope.tileMode)
-            } else {
-                null
-            }
-            clip = true
+            BlurEffect(blurRadiusPx, blurRadiusPx, scope.tileMode)
+        } else {
+            null
         }
+        clip = true
     }
 
     private fun updateOutline(
